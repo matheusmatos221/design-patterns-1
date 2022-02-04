@@ -7,6 +7,9 @@ from abc import ABCMeta, abstractmethod
 class EstadoDeUmOrcamento(object):
     __metaclass__ = ABCMeta
 
+    def __init__(self):
+        self.desconto_aplicado = False
+
     @abstractmethod
     def aplica_desconto_extra(self, orcamento):
         pass
@@ -26,7 +29,11 @@ class EstadoDeUmOrcamento(object):
 
 class EmArovacao(EstadoDeUmOrcamento):
     def aplica_desconto_extra(self, orcamento):
-        orcamento.adiciona_desconto_extra(orcamento.valor * 0.02)
+        if not self.desconto_aplicado:
+            self.desconto_aplicado = True
+            orcamento.adiciona_desconto_extra(orcamento.valor * 0.02)
+        else:
+            raise Exception('Desconto já foi aplicado')
 
     def aprova(self, orcamento):
         orcamento.estado_atual = Aprovado()
@@ -40,7 +47,11 @@ class EmArovacao(EstadoDeUmOrcamento):
 
 class Aprovado(EstadoDeUmOrcamento):
     def aplica_desconto_extra(self, orcamento):
-        orcamento.adiciona_desconto_extra(orcamento.valor * 0.05)
+        if not self.desconto_aplicado:
+            self.desconto_aplicado = True
+            orcamento.adiciona_desconto_extra(orcamento.valor * 0.05)
+        else:
+            raise Exception('Desconto já foi aplicado')
 
     def aprova(self, orcamento):
         raise Exception('Orçamento já está aprovado')
@@ -54,7 +65,7 @@ class Aprovado(EstadoDeUmOrcamento):
 
 class Reprovado(EstadoDeUmOrcamento):
     def aplica_desconto_extra(self, orcamento):
-        raise Exception('Orcamentos reprovados não receberam desconto extra')
+        raise Exception('Orcamentos reprovados não podem recebem desconto extra')
 
     def aprova(self, orcamento):
         raise Exception('Orçamento reprovado não pode ser aprovado')
@@ -68,7 +79,7 @@ class Reprovado(EstadoDeUmOrcamento):
 
 class Finalizado(EstadoDeUmOrcamento):
     def aplica_desconto_extra(self, orcamento):
-        raise Exception('Orcamentos finalizados não receberam desconto extra')
+        raise Exception('Orcamentos finalizados não recebem desconto extra')
 
     def aprova(self, orcamento):
         raise Exception('Orçamento finalizado não pode ser aprovado')
